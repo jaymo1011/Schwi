@@ -1,5 +1,9 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using System;
+using System.IO;
+using System.Reflection;
 
 namespace SchwiBot
 {
@@ -15,6 +19,7 @@ namespace SchwiBot
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
                 .UseEnvironment("Development")
+                .ConfigureAppConfiguration(AppConfigurationHandler.Delegate)
                 .ConfigureServices((hostContext, services) =>
                 {
                     services.AddHostedService<SchwiBot>();

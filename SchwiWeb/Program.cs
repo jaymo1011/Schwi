@@ -19,6 +19,7 @@ namespace SchwiWeb
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
                 .UseEnvironment("Development")
+                .ConfigureAppConfiguration(SchwiBot.AppConfigurationHandler.Delegate)
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();

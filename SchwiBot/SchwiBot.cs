@@ -9,27 +9,30 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using SchwiBot.Abstractions;
+using SchwiBot.Extensions;
+using System.Net.Http;
 
 namespace SchwiBot
 {
     public class SchwiBot : ISchwiBot, IHostedService
     {
-        private ServiceProvider services;
-        private DiscordSocketClient discordClient;
+        private readonly ServiceProvider services;
+        private readonly DiscordSocketClient discordClient;
         private readonly ILogger _logger;
-        private IConfiguration Configuration;
+        private readonly IConfiguration Configuration;
 
-        public SchwiBot(ILogger<SchwiBot> logger, IHostApplicationLifetime appLifetime, IConfiguration configuration)
+        public SchwiBot(ILogger<SchwiBot> logger, IConfiguration configuration)
         {
             _logger = logger;
-            services = BuildServices();
+            services = ConfigureServices().BuildServiceProvider();
             discordClient = services.GetRequiredService<DiscordSocketClient>();
             discordClient.Log += ProcessDiscordNetLog;
 
             Configuration = configuration; // development stuff, pending a proper implementation
         }
 
-        internal ServiceProvider BuildServices()
+        internal IServiceCollection ConfigureServices()
             => new ServiceCollection()
                 .AddSingleton(new DiscordSocketClient(new DiscordSocketConfig
                 {
@@ -37,7 +40,7 @@ namespace SchwiBot
                     //MessageCacheSize = 50,
                     ExclusiveBulkDelete = false
                 }))
-                .BuildServiceProvider();
+                .AddSingleton<HttpClient>();
 
         internal Task ProcessDiscordNetLog(Discord.LogMessage logMessage)
         {
@@ -57,6 +60,7 @@ namespace SchwiBot
 
         // ISchwiBot Implementations
         IServiceProvider ISchwiBot.Services => services;
+
         IDiscordClient ISchwiBot.DiscordClient => discordClient;
 
         // IHostedService Implementations

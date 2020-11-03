@@ -2,7 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using System;
 
-namespace SchwiBot
+namespace SchwiBot.Abstractions
 {
     public interface ISchwiBot
     {

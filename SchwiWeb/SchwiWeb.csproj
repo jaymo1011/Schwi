@@ -2,15 +2,19 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-    <UserSecretsId>4fff1d6e-415b-49cd-831f-02326ea7bc07</UserSecretsId>
+    <UserSecretsId>6e8b4ad6-a5d0-47b7-97e6-647dd7f5baed</UserSecretsId>
   </PropertyGroup>
 
-  <ItemGroup>
+	<ItemGroup>
     <PackageReference Include="AspNet.Security.OAuth.Discord" Version="3.1.6" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\SchwiBot\SchwiBot.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Remove="SchwiConfig.json" />
   </ItemGroup>
 
 </Project>

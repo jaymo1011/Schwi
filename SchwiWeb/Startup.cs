@@ -30,7 +30,6 @@ namespace SchwiWeb
                 options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
                 options.DefaultAuthenticateScheme = DiscordAuthenticationDefaults.AuthenticationScheme;
                 options.DefaultChallengeScheme = DiscordAuthenticationDefaults.AuthenticationScheme;
-                options.DefaultSignInScheme = DiscordAuthenticationDefaults.AuthenticationScheme;
             })
                 .AddCookie()
                 .AddDiscord(options =>
