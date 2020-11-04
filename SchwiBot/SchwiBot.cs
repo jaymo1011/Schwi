@@ -4,14 +4,14 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using SchwiBot.Abstractions;
+using SchwiBot.Database;
+using SchwiBot.Extensions;
+using SchwiBot.Services;
 using System;
-using System.Collections.Generic;
-using System.Text;
+using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using SchwiBot.Abstractions;
-using SchwiBot.Extensions;
-using System.Net.Http;
 
 namespace SchwiBot
 {
@@ -20,16 +20,15 @@ namespace SchwiBot
         private readonly ServiceProvider services;
         private readonly DiscordSocketClient discordClient;
         private readonly ILogger _logger;
-        private readonly IConfiguration Configuration;
+        private readonly IConfiguration _configuration;
 
         public SchwiBot(ILogger<SchwiBot> logger, IConfiguration configuration)
         {
             _logger = logger;
+            _configuration = configuration;
             services = ConfigureServices().BuildServiceProvider();
             discordClient = services.GetRequiredService<DiscordSocketClient>();
             discordClient.Log += ProcessDiscordNetLog;
-
-            Configuration = configuration; // development stuff, pending a proper implementation
         }
 
         internal IServiceCollection ConfigureServices()
@@ -40,7 +39,9 @@ namespace SchwiBot
                     //MessageCacheSize = 50,
                     ExclusiveBulkDelete = false
                 }))
-                .AddSingleton<HttpClient>();
+                .AddSingleton<HttpClient>()
+                .AddDbContext<SchwiDatabaseContext>()
+                .AddSingleton<SnowflakeStorageService>();
 
         internal Task ProcessDiscordNetLog(Discord.LogMessage logMessage)
         {
@@ -66,7 +67,7 @@ namespace SchwiBot
         // IHostedService Implementations
         async Task IHostedService.StartAsync(CancellationToken cancellationToken)
         {
-            await discordClient.LoginAsync(TokenType.Bot, Configuration["DiscordBotToken"], true);
+            await discordClient.LoginAsync(TokenType.Bot, _configuration["DiscordBotToken"], true);
 
             if (!cancellationToken.IsCancellationRequested)
                 await discordClient.StartAsync();

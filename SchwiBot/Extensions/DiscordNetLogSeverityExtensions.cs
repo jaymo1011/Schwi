@@ -1,5 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
-using Discord;
+﻿using Discord;
+using Microsoft.Extensions.Logging;
 
 namespace SchwiBot.Extensions
 {
