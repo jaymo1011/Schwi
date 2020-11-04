@@ -1,9 +1,8 @@
 ﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Text;
 
 namespace SchwiBot
 {
@@ -35,18 +34,25 @@ namespace SchwiBot
 
         public static Action<HostBuilderContext, IConfigurationBuilder> Delegate = (HostBuilderContext host, IConfigurationBuilder builder) =>
         {
-            // Set the base path to the configuration value stored at SchwiBasePath and get the (potentially) new file provider for it.
-            builder.SetBasePath(Path.Combine(Directory.GetCurrentDirectory(), host.Configuration.GetValue<string>("SchwiBasePath") ?? ""));
-            var configDir = builder.GetFileProvider();
+            // Get the config from the specified location or use the current working directory to find the configuration file.
+            var configFilePath = host.Configuration.GetValue<string>("SchwiConfigPath") ?? Path.Combine(Directory.GetCurrentDirectory(), SchwiConfigurationFileName);
 
-            var configFile = configDir.GetFileInfo(SchwiConfigurationFileName);
-            if (!configFile.Exists)
+            // If the specified path was relative then it should be relative to the current directory.
+            configFilePath = Path.Combine(Directory.GetCurrentDirectory(), configFilePath);
+
+            // If the specified path is missing a file name (and extension), use the default config name.
+            if (!Path.HasExtension(configFilePath))
+                configFilePath = Path.Combine(configFilePath, SchwiConfigurationFileName);
+            
+            // If the config file does not exist, create it by copying the sample config to it.
+            if (!File.Exists(configFilePath))
             {
-                CopySampleConfigFileTo(configFile.PhysicalPath);
-                Console.WriteLine($"New configuration file created at {configFile.PhysicalPath}");
+                CopySampleConfigFileTo(configFilePath);
+                Console.WriteLine($"New configuration file created at {configFilePath}");
             }
 
-            builder.AddJsonFile(configFile.PhysicalPath);
+            // Now that we know that it should exist, load the config from the file.
+            builder.AddJsonFile(configFilePath);
         };
     }
 }
